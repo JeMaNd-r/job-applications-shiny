@@ -6,7 +6,7 @@ Overview of job applications that were sent out or in preparation. The goal is t
 
 ## Installation
 
-Download the repository from GitHub. If relevant, unzip the downloaded folder. Open the project file [job-applications-shiny.Rproj](~/job-applications-shiny.Rproj).
+Download the repository from GitHub. If relevant, unzip the downloaded folder. Open the project file [job-applications-shiny.Rproj](job-applications-shiny.Rproj).
 
     
 ## Tech Stack
@@ -25,7 +25,7 @@ Download the repository from GitHub. If relevant, unzip the downloaded folder. O
 
 1. Create an .env file using the .env.example. In most cases, you will just have to copy-paste the content of this file.
 
-2. Open the Project file if not done yet: [job-applications-shiny.Rproj](~/job-applications-shiny.Rproj).
+2. Open the Project file if not done yet: [job-applications-shiny.Rproj](job-applications-shiny.Rproj).
 
 3. Click on `Run App` in Rstudio or use the following command
 
@@ -79,5 +79,5 @@ This is a personal learning project and is not open to contributions. Thank you 
 
 ## License
 
-[MIT](~/LICENSE)
+[MIT](LICENSE)
 
