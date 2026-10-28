@@ -61,5 +61,6 @@ renv/local/
 # Local generated output
 reports/
 tests/testthat/_snaps/
+data/Applications_*
 
 
