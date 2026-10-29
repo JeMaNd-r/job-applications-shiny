@@ -50,6 +50,12 @@ ui <- page_sidebar(
       max = as.Date("2030-12-31"),
       value = c(as.Date("2000-01-01"), as.Date("2030-12-31"))
     ),
+    radioButtons(
+      "submission_status",
+      label = "Submission status",
+      choices = c("All", "Sent", "In Preparation", "Stopped", "Rejected"),
+      selected = "All"
+    ),
     hr(),
     tags$h5("Data source"),
     textOutput("data_source"),
@@ -126,14 +132,33 @@ server <- function(input, output, session) {
     )
   })
   
+  # Sub-setting data based on selected filters
   df <- reactive({
-    df_all |>
+    req(input$date_range, input$submission_status)
+    
+    df_subset <- df_all |>
       dplyr::filter(
         dplyr::if_any(
           dplyr::all_of(date_columns),
-          ~ !is.na(.x) & .x >= input$date_range[1] & .x <= input$date_range[2]
+          ~ !is.na(.x) & 
+            .x >= input$date_range[1] & 
+            .x <= input$date_range[2]
         )
       )
+      
+    switch(
+      input$submission_status,
+      "All" = df_subset,
+      "Sent" = df_subset |>
+        dplyr::filter(!is.na(Einreichung)),
+      "In Preparation" = df_subset |>
+        dplyr::filter(Status %in% c("Prio - tbc", "Nicht gestartet")),
+      "Stopped" = df_subset |>
+        dplyr::filter(Status %in% c("Beendet", "Abgebrochen")),
+      "Rejected" = df_subset |>
+        dplyr::filter(Status == "Absage"),
+      df_subset
+    )
   })
   
   ## Count number of positions ####
@@ -186,19 +211,38 @@ server <- function(input, output, session) {
   
   ## Applications over time ####
   output$appl_over_time <- renderPlot({
-    appl_over_time <- count_cummulative(df() |> dplyr::select(`Stelle/ Position`, Einreichung), "Einreichung")
-    
-    ggplot(data = appl_over_time, aes(x = Einreichung, y = count))+
-      geom_line() + 
-      geom_point() +
-      theme_bw()
+    appl_deadline_over_time <- count_cummulative(df() |> dplyr::select(`Stelle/ Position`, Deadline), "Deadline")
+
+    if(input$submission_status == "In Preparation"){
+      appl_over_time <- appl_deadline_over_time
+      
+      ggplot(data = appl_over_time)+
+        geom_line(aes(x = Deadline, y = count, color = "Deadline")) + geom_point(aes(x = Deadline, y = count)) +
+        theme_bw()
+      
+    } else {
+      appl_contact_over_time <- count_cummulative(df() |> dplyr::select(`Stelle/ Position`, `Letzter Kontakt`), "Letzter Kontakt")
+      appl_sent_over_time <- count_cummulative(df() |> dplyr::select(`Stelle/ Position`, Einreichung), "Einreichung")
+      
+      appl_over_time <- 
+        full_join(appl_sent_over_time, appl_deadline_over_time) |>
+        full_join(appl_contact_over_time)
+      
+      ggplot(data = appl_over_time)+
+        geom_line(aes(x = Einreichung, y = count, color = "Einreichung")) + geom_point(aes(x = Einreichung, y = count)) +
+        geom_line(aes(x = Deadline, y = count, color = "Deadline")) + geom_point(aes(x = Deadline, y = count)) +
+        geom_line(aes(x = `Letzter Kontakt`, y = count, color = "Letzter Kontakt")) + geom_point(aes(x = `Letzter Kontakt`, y = count)) +
+        theme_bw()
+    }
   })
   
+  ## Data table
   output$data <- renderTable({
     df() |>
       mutate(across(date_columns, as.character))
   })
   
+  ## Data source
   output$data_source <- renderText({
     if(own_data_file != ""){
       paste0("Own data file: ", own_data_file)

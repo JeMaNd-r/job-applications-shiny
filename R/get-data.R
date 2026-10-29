@@ -1,6 +1,7 @@
 library("googlesheets4")
 library("readr")
 
+source("R/process-data.R")
 
 get_data <- function(){
   # Depending on access permission, download data from Google Drive or read CSV file in data folder.
@@ -10,7 +11,9 @@ get_data <- function(){
     try({
       df <- readr::read_csv(file_name)
       print("Data loaded from your own file")
-      process_data(df)
+      df <- process_data(df)
+      print("Data processed")
+      return(df)
     })
   } else {
     
@@ -19,6 +22,7 @@ get_data <- function(){
         if(file.exists(file_name)){
           df <- readr::read_csv(file_name)
           print("Data loaded from CSV file")
+          return(df)
           
         } else {
           try({
@@ -26,7 +30,9 @@ get_data <- function(){
               "https://docs.google.com/spreadsheets/d/119YsIeSaDFozVkoYpBXFmIXaAMwz7AY0jtOC3i2wGUE/edit?gid=0#gid=0"
             )
             print("Data loaded from Google Drive")
-            process_data(df)
+            df <- process_data(df)
+            print("Data processed")
+            return(df)
           })
           if(!base::exists("df")){
             files <- list.files("data/", pattern = "Applications_*", full.names = TRUE) |>
