@@ -3,12 +3,18 @@ library(bslib)
 library(bsicons)
 library(ggplot2)
 library(dplyr)
-
-source("global.R")
+library(terra)
+library(geodata)
+library(ggrepel)
+library(sf)
 
 # Load data (before app to increase performance)
 df_all <- get_data()
 
+coord_file <- list.files("data/", pattern = "city_coordinates_", full.names = TRUE)[1]
+coord <- readr::read_csv(coord_file)
+
+## APP
 # Define user interface
 ui <- page_sidebar(
   
@@ -101,6 +107,10 @@ ui <- page_sidebar(
     nav_panel(
       "Applications over time",
       plotOutput("appl_over_time")
+    ),
+    nav_panel(
+      "Job locations",
+      plotOutput("job_locations")
     ),
     nav_panel(
       "Underlying data",
@@ -234,6 +244,49 @@ server <- function(input, output, session) {
         geom_line(aes(x = `Letzter Kontakt`, y = count, color = "Letzter Kontakt")) + geom_point(aes(x = `Letzter Kontakt`, y = count)) +
         theme_bw()
     }
+  })
+  
+  ## Map of job locations
+  output$job_locations <- renderPlot({
+    cities <- match_coordinates(df(), coord)
+    
+    city_points <- terra::vect(as.data.frame(cities), geom = c("lon", "lat"), crs = "EPSG:4326")
+    world <- geodata::world(path = tempdir())
+    
+    extent <- c(
+      min(coord$lon, na.rm = TRUE) - 4,
+      max(coord$lon, na.rm = TRUE) + 4,
+      min(coord$lat, na.rm = TRUE) - 2,
+      max(coord$lat, na.rm = TRUE) + 2
+    )
+    
+    e <- ext(extent)
+
+    map <- crop(world, e)
+    
+    world_sf <- sf::st_as_sf(map)
+    cities_sf <- sf::st_as_sf(city_points)
+    
+    ggplot() +
+      geom_sf(data = world_sf, fill = "grey95", color = "grey70") +
+      geom_sf(data = cities_sf, color = "forestgreen", size = 3) +
+      geom_text_repel(
+        data = cities,
+        aes(x = lon, y = lat, label = city),
+        size = 5,
+        seed = 42
+      ) +
+      coord_sf(
+        xlim = c(extent[1], extent[2]),
+        ylim = c(extent[3], extent[4]),
+        expand = FALSE
+      ) +
+      theme_bw()
+    
+    
+    # terra::plot(map, col = "grey95", border = "grey70")
+    # #terra::points(city_points, col = "forestgreen", cex = 3)
+    # terra::text(city_points, labels = city_points$city, col = "forestgreen", halo = TRUE, jitter = 0.1, add = TRUE)
   })
   
   ## Data table

@@ -44,6 +44,11 @@ process_data <- function(df){
       "Start" = ifelse(is.null(Start), NULL, as.character(Start)),
       "Befristung" = ifelse(is.null(Befristung), NULL, as.character(Befristung)))
   
-  
+  # replace character
+  df$Arbeitsort <- gsub("ß", "ss", df$Arbeitsort, fixed = TRUE)
+  df$Arbeitsort <- gsub("ä", "ae", df$Arbeitsort, fixed = TRUE)
+  df$Arbeitsort <- gsub("ö", "oe", df$Arbeitsort, fixed = TRUE)
+  df$Arbeitsort <- gsub("ü", "ue", df$Arbeitsort, fixed = TRUE)
+
   return(df)
 }

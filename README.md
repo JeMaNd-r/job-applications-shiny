@@ -34,9 +34,12 @@ Download the repository from GitHub. If relevant, unzip the downloaded folder. O
 shiny::runApp()
 ```
 
-### Screenshots
+### Screenshots (fake data)
 
 ![Dashboard - Applications over time](images/Applications_over_time.png)
+
+![Dashboard - Map](images/Map_with_job_locations.png)
+
 
 ![Dashboard - Data](images/Data_view.png)
 
@@ -64,10 +67,12 @@ shiny::runApp()
 ## Features
 
 - Value boxes showing interesting counts
+- Filter for submission status that effects all shown figures and graphs
 - Line graph with number of applications over time
-- Data table to view information about applications
 - Adjustable date range to view application numbers, graph and table in certain time intervals
+- Map showing job locations
 - Exchangeable data input depending on user permission and provided data files
+- Data table to view information about applications
 
 ![Feature adjustable date range](images/Filter_for_date_range.png)
 
@@ -84,7 +89,9 @@ This is a personal learning project and is not open to contributions. Thank you 
 
 ## Acknowledgements
 
-- [Readme.so](https://readme.so/editor)
+Readme template was taken from [Readme.so](https://readme.so/editor).
+
+Coordinates obtained from the city articles on Wikipedia (English and German editions), accessed 29 October 2026. Wikipedia contributors; coordinate values converted from degrees/minutes/seconds to decimal degrees where applicable.
 
 
 ## License
