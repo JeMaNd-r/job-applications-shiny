@@ -13,7 +13,7 @@ Download the repository from GitHub. If relevant, unzip the downloaded folder. O
 ## Tech Stack
 
 - Platform: x86_64-w64-mingw32/x64 (Windows)
-- RStudio 2026.10.0
+- RStudio 2026.10.1
 - R 4.5.2
   - RShiny (shiny_1.14.0)
   - bslib_0.10.0 and bsicons_0.1.2
